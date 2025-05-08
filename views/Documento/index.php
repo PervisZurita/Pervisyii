@@ -15,31 +15,42 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="documento-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <!-- Estilo para el encabezado -->
+    <h1 style="color: #3498db; text-align: center;"><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Documento'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin'): ?>
+            <?= Html::a(Yii::t('app', 'Crear Documento'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php endif; ?>
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-            'persona_idpersona',
+            [
+                'attribute' => 'persona_idpersona',
+                'value' => function ($model) {
+                    return $model->persona ? $model->persona->nombre . ' ' . $model->persona->apellido: 'No asignado';
+                },
+                'label' => 'Nombre de la Persona', 
+            ],
             'tipo_documento',
             'numero',
             'fecha_emision',
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view}', // Solo muestra el botón 'view'
                 'urlCreator' => function ($action, Documento $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'iddocumento' => $model->iddocumento, 'persona_idpersona' => $model->persona_idpersona]);
-                 }
+                }
             ],
         ],
+        // Centramos el contenido de las celdas
+        'options' => ['style' => 'text-align: center;'],
     ]); ?>
 
     <?php Pjax::end(); ?>

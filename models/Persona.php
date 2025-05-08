@@ -91,6 +91,10 @@ class Persona extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Documento::class, ['persona_idpersona' => 'idpersona']);
     }
+    public function getEstado()
+{
+    return $this->hasOne(Estado::class, ['idestado' => 'estado_idestado']);
+}
 
     /**
      * Gets query for [[EstadoIdestado]].

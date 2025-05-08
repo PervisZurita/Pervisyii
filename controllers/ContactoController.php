@@ -135,4 +135,8 @@ class ContactoController extends Controller
 
         throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
     }
+    public function getPersona()
+{
+    return $this->hasOne(Persona::className(), ['idpersona' => 'persona_idpersona']);
+}
 }

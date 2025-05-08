@@ -15,14 +15,16 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="estado-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <!-- Estilo para el encabezado -->
+    <h1 style="color: #3498db; text-align: center;"><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Estado'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin'): ?>
+            <?= Html::a(Yii::t('app', 'Crear Estado'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php endif; ?>
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -32,11 +34,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'estado',
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view}', // Solo muestra el botón 'view'
                 'urlCreator' => function ($action, Estado $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'idestado' => $model->idestado]);
-                 }
+                }
             ],
         ],
+        // Centramos el contenido de las celdas
+        'options' => ['style' => 'text-align: center;'],
     ]); ?>
 
     <?php Pjax::end(); ?>

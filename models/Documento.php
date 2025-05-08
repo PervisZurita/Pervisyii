@@ -61,10 +61,11 @@ class Documento extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery|PersonaQuery
      */
-    public function getPersonaIdpersona()
+    public function getPersona()
     {
-        return $this->hasOne(Persona::class, ['idpersona' => 'persona_idpersona']);
+        return $this->hasOne(Persona::className(), ['idpersona' => 'persona_idpersona']);
     }
+
 
     /**
      * {@inheritdoc}

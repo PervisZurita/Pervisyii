@@ -5,13 +5,13 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var app\models\Contacto $model */
 
-$this->title = Yii::t('app', 'Create Contacto');
+$this->title = Yii::t('app', 'Crear Contacto');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Contactos'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="contacto-create">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+  
 
     <?= $this->render('_form', [
         'model' => $model,

@@ -11,30 +11,41 @@ $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Documentos'), 'url' 
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div class="documento-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+<div class="container py-5">
 
-    <p>
-        <?= Html::a(Yii::t('app', 'Update'), ['update', 'iddocumento' => $model->iddocumento, 'persona_idpersona' => $model->persona_idpersona], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'iddocumento' => $model->iddocumento, 'persona_idpersona' => $model->persona_idpersona], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
-                'method' => 'post',
+    <div class="documento-view bg-light shadow-lg rounded p-5" style="max-width: 700px; width: 100%; border-radius: 15px;">
+        
+        <h1 class="text-center text-primary font-weight-bold mb-4"><?= Html::encode($this->title) ?></h1>
+
+        <p class="text-center">
+            <?php if (Yii::$app->user->identity->role == 'admin'): ?>
+                <?= Html::a(Yii::t('app', 'Actualizar'), ['update', 'iddocumento' => $model->iddocumento, 'persona_idpersona' => $model->persona_idpersona], ['class' => 'btn btn-primary px-4 py-2']) ?>
+                <?= Html::a(Yii::t('app', 'Eliminar'), ['delete', 'iddocumento' => $model->iddocumento, 'persona_idpersona' => $model->persona_idpersona], [
+                    'class' => 'btn btn-danger px-4 py-2 ml-2',
+                    'data' => [
+                        'confirm' => Yii::t('app', '¿Está seguro de que desea eliminar este ítem?'),
+                        'method' => 'post',
+                    ],
+                ]) ?>
+            <?php endif; ?>
+        </p>
+
+        <?= DetailView::widget([
+            'model' => $model,
+            'attributes' => [
+                [
+                    'label' => 'Nombre Completo', 
+                    'value' => function ($model) {
+                        return $model->persona ? $model->persona->nombre . ' ' . $model->persona->apellido : 'No asignado';
+                    },
+                ],
+                'tipo_documento',
+                'numero',
+                'fecha_emision',
             ],
         ]) ?>
-    </p>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'iddocumento',
-            'persona_idpersona',
-            'tipo_documento',
-            'numero',
-            'fecha_emision',
-        ],
-    ]) ?>
+    </div>
 
 </div>

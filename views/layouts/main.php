@@ -12,6 +12,9 @@ use yii\bootstrap5\NavBar;
 
 AppAsset::register($this);
 
+// Aseguramos que $this->params sea un array
+$this->params = $this->params ?? [];
+
 $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
 $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
@@ -38,36 +41,46 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     ]);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            ['label' => 'inicio', 'url' => ['/site/index']],
+        'items' => array_filter([
+            ['label' => 'Inicio', 'url' => ['/site/index']],
             ['label' => 'Acerca de Nosotros', 'url' => ['/site/about']],
-            ['label' => 'Contactanos', 'url' => ['/site/contact']],
-     ['label'=> 'Gestionar Registro',
-            'items'=>[
-                ['label' => 'Persona', 'url' => ['/persona/index']],
-                 ['label' => 'Estado', 'url' => ['/estado/index']],
-                 ['label' => 'Direccion', 'url' => ['direccion/index']],
-                 ['label' => 'Documento', 'url' => ['/documento/index']],
-                 ['label' => 'Contacto', 'url' => ['/contacto/index']],
-            ],],
+            ['label' => 'Contáctanos', 'url' => ['/site/contact']],
+            [
+                'label' => 'Gestionar Registro',
+                'items' => array_filter([
+                    ['label' => 'Persona', 'url' => ['/persona/index']],
+                    ['label' => 'Estado', 'url' => ['/estado/index']],
+                    ['label' => 'Dirección', 'url' => ['/direccion/index']],
+                    ['label' => 'Documento', 'url' => ['/documento/index']],
+                    ['label' => 'Contacto', 'url' => ['/contacto/index']],
+                    !Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin'
+                        ? ['label' => 'Usuarios', 'url' => ['/user/index']]
+                        : null,
+                ]),
+            ],
             Yii::$app->user->isGuest
-                ? ['label' => 'Iniciar Session', 'url' => ['/site/login']]
-                : '<li class="nav-item">'
+                ? ['label' => 'Iniciar Sesión', 'url' => ['/site/login']]
+                : ['label' => 'Cambiar contraseña', 'url' => ['/user/change-password']],
+            !Yii::$app->user->isGuest
+                ? '<li class="nav-item">'
                     . Html::beginForm(['/site/logout'])
                     . Html::submitButton(
-                        'Cerrar Session (' . Yii::$app->user->identity->username . ')',
+                        'Cerrar Sesión (' 
+                        . Html::encode(Yii::$app->user->identity->apellido . ' ' . Yii::$app->user->identity->nombre) 
+                        . ') ' . Html::encode(Yii::$app->user->identity->role),
                         ['class' => 'nav-link btn btn-link logout']
                     )
                     . Html::endForm()
                     . '</li>'
-        ]
+                : null,
+        ])
     ]);
     NavBar::end();
     ?>
 </header>
 
 <main id="main" class="flex-shrink-0" role="main">
-    <div class="container">
+    <div class="container mt-5 pt-4">
         <?php if (!empty($this->params['breadcrumbs'])): ?>
             <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
         <?php endif ?>

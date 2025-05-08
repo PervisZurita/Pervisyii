@@ -15,14 +15,16 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="persona-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <!-- Estilo para el encabezado -->
+    <h1 style="color: #3498db; text-align: center;"><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Persona'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin'): ?>
+            <?= Html::a(Yii::t('app', 'Crear Persona'), ['create'], ['class' => 'btn btn-success']) ?>
+        <?php endif; ?>
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -33,14 +35,23 @@ $this->params['breadcrumbs'][] = $this->title;
             'apellido',
             'fecha_nacimiento',
             'genero',
-            'estado_idestado',
+            [
+                'attribute' => 'estado_idestado',
+                'label' => 'Estado',
+                'value' => function ($model) {
+                    return $model->estado->estado ?? 'No asignado';
+                },
+            ],
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view}', // Solo muestra el botón 'view'
                 'urlCreator' => function ($action, Persona $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'idpersona' => $model->idpersona, 'estado_idestado' => $model->estado_idestado]);
-                 }
+                }
             ],
         ],
+        // Centramos el contenido de las celdas
+        'options' => ['style' => 'text-align: center;'],
     ]); ?>
 
     <?php Pjax::end(); ?>

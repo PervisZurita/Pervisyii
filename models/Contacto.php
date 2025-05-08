@@ -59,6 +59,10 @@ class Contacto extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Persona::class, ['idpersona' => 'persona_idpersona']);
     }
+    public function getPersona()
+    {
+        return $this->hasOne(Persona::className(), ['idpersona' => 'persona_idpersona']);
+    }
 
     /**
      * {@inheritdoc}
