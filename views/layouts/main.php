@@ -1,32 +1,26 @@
 <?php
 
-/** @var yii\web\View $this */
-/** @var string $content */
-
-use app\assets\AppAsset;
-use app\widgets\Alert;
-use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
-
-AppAsset::register($this);
-
-// Aseguramos que $this->params sea un array
-$this->params = $this->params ?? [];
+use yii\bootstrap5\Breadcrumbs;
+use app\widgets\Alert;
 
 $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
 $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
-$this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? '']);
-$this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
-$this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
+$this->registerCssFile('@web/css/estilos.css', [
+    'depends' => [\yii\bootstrap5\BootstrapAsset::class],
+]);
+$this->title = Html::encode($this->title);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
 <head>
-    <title><?= Html::encode($this->title) ?></title>
+    <meta charset="<?= Yii::$app->charset ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title><?= Html::encode($this->title) ?> | <?= Html::encode(Yii::$app->name) ?></title>
     <?php $this->head() ?>
 </head>
 <body class="d-flex flex-column h-100">
@@ -35,17 +29,17 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <header id="header">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => '<span class="brand-text">' . Html::encode(Yii::$app->name) . '</span>',
         'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+        'options' => ['class' => 'navbar navbar-expand-md navbar-dark bg-primary shadow-sm fixed-top'],
     ]);
     echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
+        'options' => ['class' => 'navbar-nav ms-auto'],
         'items' => array_filter([
             ['label' => 'Inicio', 'url' => ['/site/index']],
             ['label' => 'Acerca de Nosotros', 'url' => ['/site/about']],
             ['label' => 'Contáctanos', 'url' => ['/site/contact']],
-            [
+            !Yii::$app->user->isGuest ? [
                 'label' => 'Gestionar Registro',
                 'items' => array_filter([
                     ['label' => 'Persona', 'url' => ['/persona/index']],
@@ -53,34 +47,40 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     ['label' => 'Dirección', 'url' => ['/direccion/index']],
                     ['label' => 'Documento', 'url' => ['/documento/index']],
                     ['label' => 'Contacto', 'url' => ['/contacto/index']],
-                    !Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin'
+                    Yii::$app->user->identity->role === 'admin'
                         ? ['label' => 'Usuarios', 'url' => ['/user/index']]
                         : null,
                 ]),
-            ],
+                'dropDownOptions' => ['class' => 'dropdown-menu'],
+                'options' => ['class' => 'nav-item dropdown'],
+                'linkOptions' => [
+                    'class' => 'nav-link dropdown-toggle',
+                    'data-bs-toggle' => 'dropdown',
+                    'role' => 'button',
+                    'aria-expanded' => 'false'
+                ],
+            ] : null,
             Yii::$app->user->isGuest
                 ? ['label' => 'Iniciar Sesión', 'url' => ['/site/login']]
                 : ['label' => 'Cambiar contraseña', 'url' => ['/user/change-password']],
             !Yii::$app->user->isGuest
                 ? '<li class="nav-item">'
-                    . Html::beginForm(['/site/logout'])
+                    . Html::beginForm(['/site/logout'], 'post', ['class' => 'd-inline'])
                     . Html::submitButton(
-                        'Cerrar Sesión (' 
-                        . Html::encode(Yii::$app->user->identity->apellido . ' ' . Yii::$app->user->identity->nombre) 
-                        . ') ' . Html::encode(Yii::$app->user->identity->role),
-                        ['class' => 'nav-link btn btn-link logout']
+                        'Cerrar Sesión (' . Html::encode(Yii::$app->user->identity->apellido . ' ' . Yii::$app->user->identity->nombre) . ')' . Html::encode(Yii::$app->user->identity->role),
+                        ['class' => 'nav-link btn btn-link text-white logout']
                     )
                     . Html::endForm()
                     . '</li>'
                 : null,
-        ])
+        ]),
     ]);
     NavBar::end();
     ?>
 </header>
 
 <main id="main" class="flex-shrink-0" role="main">
-    <div class="container mt-5 pt-4">
+    <div class="container mt-5 pt-5">
         <?php if (!empty($this->params['breadcrumbs'])): ?>
             <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
         <?php endif ?>
@@ -89,12 +89,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     </div>
 </main>
 
-<footer id="footer" class="mt-auto py-3 bg-light">
-    <div class="container">
-        <div class="row text-muted">
-            <div class="col-md-6 text-center text-md-start">&copy; My Company <?= date('Y') ?></div>
-            <div class="col-md-6 text-center text-md-end"><?= Yii::powered() ?></div>
-        </div>
+<footer id="footer" class="mt-auto bg-dark text-white py-3">
+    <div class="container text-center small">
+        &copy; <?= date('Y') ?> <?= Html::encode(Yii::$app->name) ?>. Todos los derechos reservados.
     </div>
 </footer>
 
